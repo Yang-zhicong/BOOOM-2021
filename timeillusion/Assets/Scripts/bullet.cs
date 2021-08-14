@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class bullet : MonoBehaviour
 {
@@ -10,6 +11,9 @@ public class bullet : MonoBehaviour
     public float damegeSpeed = 5;
     public GameObject blood;
     public GameObject bloodE;
+
+
+
     Rigidbody rb;
     GameObject bulletlight;
 
@@ -20,17 +24,20 @@ public class bullet : MonoBehaviour
         {
             if (rb.velocity.magnitude >= damegeSpeed)
             {
+
                 collision.transform.GetComponent<player>().hp -= damage;
+
                 collision.transform.GetComponent<player>().updatePlayerHPInfo();
                 ContactPoint contact = collision.contacts[0];               
                 Instantiate(blood, contact.point, Quaternion.FromToRotation(Vector3.forward, contact.normal));
                 Instantiate(blood, contact.point, Quaternion.FromToRotation(Vector3.back, contact.normal));
                 Destroy(gameObject);
+
             }                   
         }
         if (collision.transform.tag == "Enemy")
         {
-            //UnityEngine.Debug.Log("»÷ÖÐµÐÈË");
+            //UnityEngine.Debug.Log("ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½");
             collision.transform.GetComponent<enemy>().hurt();
             ContactPoint contact = collision.contacts[0];
             Instantiate(bloodE, contact.point, Quaternion.FromToRotation(Vector3.forward, contact.normal));

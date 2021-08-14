@@ -26,11 +26,30 @@ public class player : MonoBehaviour
     public AudioClip getShotSFX, shootSFX;
     AudioSource audioSource;
 
+    public Slider TimeFeeling;
+    public float TragetTimeFeel;
+    public float TragetTimeFeelHurt;
+    public float expSpeed;
+
+    public bool IsTimeFeeling;
+    public GameObject PlayerSoul;
+
+    //public DelayMove delaymove;
+
+    public bullet Bullet;
+
+
+
+
+
+
+
     bool alive = true;
 
     // Start is called before the first frame update
     void Start()
     {
+        TimeFeeling.value = 0f;
         audioSource = GetComponent<AudioSource>();
         rb = transform.GetComponent<Rigidbody>();     
         hp = maxhp;
@@ -38,6 +57,7 @@ public class player : MonoBehaviour
         booom1 = BOOOMUI.transform.GetChild(1).gameObject;
         booom2 = BOOOMUI.transform.GetChild(2).gameObject;
         booom3 = BOOOMUI.transform.GetChild(3).gameObject;
+
 
     }
 
@@ -50,6 +70,7 @@ public class player : MonoBehaviour
         //1,
         //enemy.transform.position.z));
 
+
         //角色朝向光标
         RaycastHit hit;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -59,22 +80,22 @@ public class player : MonoBehaviour
             transform.LookAt(new Vector3(hit.point.x, 1, hit.point.z));
         }      
 
-        if(alive)
-        {
-            if (Input.GetAxis("Horizontal") != 0 && Input.GetAxis("Vertical") != 0)
-            {
-                rb.velocity = new Vector3(
-                    Input.GetAxis("Horizontal"),
-                    0,
-                    Input.GetAxis("Vertical")) * speed * Mathf.Sqrt(2) / 2;
-            }
-            else
-                rb.velocity = new Vector3(
-                   Input.GetAxis("Horizontal"),
-                   0,
-                   Input.GetAxis("Vertical")) * speed;
+        // if(alive)
+        // {
+        //     if (Input.GetAxis("Horizontal") != 0 && Input.GetAxis("Vertical") != 0)
+        //     {
+        //         rb.velocity = new Vector3(
+        //             Input.GetAxis("Horizontal"),
+        //             0,
+        //             Input.GetAxis("Vertical")) * speed * Mathf.Sqrt(2) / 2;
+        //     }
+        //     else
+        //         rb.velocity = new Vector3(
+        //            Input.GetAxis("Horizontal"),
+        //            0,
+        //            Input.GetAxis("Vertical")) * speed;
 
-        }
+        // }
 
         if (Input.GetMouseButton(0))
         {
@@ -91,7 +112,37 @@ public class player : MonoBehaviour
             audioSource.clip = shootSFX;
             audioSource.Play();
             booomValue -= 100;
+
+            TragetTimeFeel = TimeFeeling.value + 3f;
+
+            IsTimeFeeling = true;
+            PlayerSoul.GetComponent<DelayMove>().delay += 0.5f;
+
+
         }
+
+        //时间感知条增幅
+        if(IsTimeFeeling)
+        {
+            if(TimeFeeling.value < TragetTimeFeel)
+        {            
+            float SliderLength = 10f;
+
+            TimeFeeling.value += Mathf.Clamp(TragetTimeFeel -  TimeFeeling.value, SliderLength * 0.05f , SliderLength * 0.5f ) * expSpeed * Time.deltaTime;
+            //delaymove.delay += 0.1f;
+        }
+        else
+        {
+            IsTimeFeeling =false;
+
+        }
+
+        }
+
+
+
+
+
         if(hp<=0)
         {
             alive = false;
@@ -107,16 +158,32 @@ public class player : MonoBehaviour
         {
             SceneManager.LoadScene(0);
         }
+
+
+
     }
 
     public void updatePlayerHPInfo()
     {   
+
         if(alive)
         {
-            HPUI.transform.GetChild(0).GetComponent<Image>().fillAmount = 
-                hp/maxhp;
+            HPUI.transform.GetChild(0).GetComponent<Image>().fillAmount = hp/maxhp;
             audioSource.clip = getShotSFX;
             audioSource.Play();
+
+            //受击后时间感知
+
+            float SliderLength = 10f;
+            PlayerSoul.GetComponent<DelayMove>().delay -= 0.5f;
+
+            TragetTimeFeelHurt = TimeFeeling.value + 5f;
+            if(TimeFeeling.value < TragetTimeFeelHurt)
+            {
+                TimeFeeling.value -= Mathf.Clamp(TragetTimeFeelHurt - TimeFeeling.value, SliderLength * 0.05f , SliderLength * 0.5f ) * expSpeed * Time.deltaTime;
+                
+            }
+
         }   
         else
         {
